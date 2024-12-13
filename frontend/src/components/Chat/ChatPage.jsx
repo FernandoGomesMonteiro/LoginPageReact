@@ -98,7 +98,7 @@ const ChatPage = () => {
                     className={`max-w-xs p-3 rounded-lg text-white ${msg.username === user.nome ? "bg-blue-600" : "bg-gray-600"}`}
                   >
                     <strong>{msg.username}:</strong>
-                    <p>{msg.message}</p>
+                    <p className="whitespace-pre-wrap break-words">{msg.message}</p> {/* Classe break-words para quebra automática */}
                     <div className="text-sm text-gray-300">
                       {new Date(msg.created_at).toLocaleString()}
                     </div>
