@@ -17,6 +17,25 @@ const SignupForm = () => {
     setStatus("pending");
     setShowLink(false);
 
+    // Limpar mensagens anteriores
+    setMessage("");
+    setStatus("");
+
+    // Validações adicionais
+    if (!name || !email || !password || !confirmPassword) {
+      setMessage("Preencha todos os campos.");
+      setStatus("error");
+      setShowLink(true);
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setMessage("E-mail inválido.");
+      setStatus("error");
+      setShowLink(true);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setMessage("As senhas não coincidem.");
       setStatus("error");
@@ -31,7 +50,7 @@ const SignupForm = () => {
       const response = await fetch("http://localhost:5000/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, confirmPassword }), // Enviando confirmPassword também
       });
 
       const data = await response.json();
@@ -39,7 +58,7 @@ const SignupForm = () => {
       if (response.ok) {
         setMessage(data.message);
         setStatus("success");
-        setTimeout(() => navigate("/login"), 2000); // Redireciona para login após sucesso
+        navigate("/login"); // Redireciona imediatamente após sucesso
       } else {
         setMessage(data.message);
         setStatus("error");

@@ -53,7 +53,7 @@ const LoginForm = () => {
   };
 
   const handleSignupClick = () => {
-    navigate("/SignupForm"); // Redireciona para a página de cadastro
+    navigate("/Signup"); // Redireciona para a página de cadastro
   };
 
   return (

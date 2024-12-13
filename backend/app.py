@@ -6,6 +6,11 @@ from routes.ChatRoute import chat_route
 from config import DB_CONFIG
 from werkzeug.security import generate_password_hash
 from flask.blueprints import Blueprint
+import logging
+
+# Configuração de logging para depuração
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Blueprint para a rota de cadastro
 signup_route = Blueprint("signup_route", __name__)
@@ -19,36 +24,48 @@ class User(db.Model):
     password = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-@signup_route.route("/SignupForm", methods=["POST"])
+
+@signup_route.route("/", methods=["POST"])
 def signup():
-    data = request.get_json()
-    if not data:
-        return jsonify({"message": "Nenhum dado enviado"}), 400
-
-    name = data.get("name")
-    email = data.get("email")
-    password = data.get("password")
-
-    if not name or not email or not password:
-        return jsonify({"message": "Todos os campos são obrigatórios"}), 400
-
-    # Verifica se o e-mail já existe
-    if User.query.filter_by(email=email).first():
-        return jsonify({"message": "E-mail já cadastrado"}), 400
-
-    # Criptografa a senha
-    hashed_password = generate_password_hash(password)
-
-    # Cria o novo usuário
-    new_user = User(name=name, email=email, password=hashed_password)
-
     try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"message": "Nenhum dado enviado"}), 400
+
+        name = data.get("name")
+        email = data.get("email")
+        password = data.get("password")
+        confirm_password = data.get("confirmPassword")
+
+        # Validações básicas
+        if not name or not email or not password or not confirm_password:
+            return jsonify({"message": "Todos os campos são obrigatórios"}), 400
+
+        if password != confirm_password:
+            return jsonify({"message": "As senhas não coincidem"}), 400
+
+        # Verifica se o e-mail já está cadastrado
+        if User.query.filter_by(email=email).first():
+            return jsonify({"message": "E-mail já cadastrado"}), 400
+
+        # Criptografa a senha
+        hashed_password = generate_password_hash(password)
+
+        # Cria o novo usuário
+        new_user = User(name=name, email=email, password=hashed_password)
+
+        # Salva no banco de dados
         db.session.add(new_user)
         db.session.commit()
+
+        logger.info(f"Usuário {email} cadastrado com sucesso.")
         return jsonify({"message": "Usuário cadastrado com sucesso"}), 201
+
     except Exception as e:
+        logger.error(f"Erro ao cadastrar usuário: {e}")
         db.session.rollback()
-        return jsonify({"message": f"Erro ao cadastrar usuário: {str(e)}"}), 500
+        return jsonify({"message": "Erro interno. Por favor, tente novamente."}), 500
+
 
 def create_app():
     app = Flask(__name__)
@@ -71,6 +88,7 @@ def create_app():
     app.register_blueprint(signup_route, url_prefix="/signup")  # Nova rota de cadastro
 
     return app
+
 
 if __name__ == "__main__":
     app = create_app()

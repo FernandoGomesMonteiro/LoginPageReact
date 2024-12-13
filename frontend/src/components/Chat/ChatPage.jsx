@@ -5,6 +5,13 @@ import axios from "axios";
 
 const socket = io("http://localhost:5000");
 
+const Contact = ({ name, bgColor }) => (
+  <div className="flex items-center space-x-4 cursor-pointer hover:bg-gray-700 p-3 rounded-lg transition duration-300">
+    <div className={`w-12 h-12 ${bgColor} rounded-full`}></div>
+    <span className="text-lg font-medium">{name}</span>
+  </div>
+);
+
 const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
@@ -53,29 +60,27 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-blue-300 flex">
-      {/* Barra lateral esquerda */}
-      <div className="w-80 bg-gray-800 text-white p-6 flex flex-col space-y-8 shadow-lg">
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-600 via-blue-400 to-blue-300 flex overflow-hidden">
+      {/* Barra lateral esquerda com overflow */}
+      <div className="w-80 bg-gray-800 text-white p-6 flex flex-col space-y-8 shadow-lg overflow-y-auto max-h-screen">
         <h2 className="text-2xl font-semibold text-gray-200">Contatos</h2>
         <div className="space-y-6">
           {/* Exemplo de contatos */}
-          <div className="flex items-center space-x-4 cursor-pointer hover:bg-gray-700 p-3 rounded-lg transition duration-300">
-            <div className="w-12 h-12 bg-blue-600 rounded-full"></div>
-            <span className="text-lg font-medium">Grupo do Telemarketing</span>
-          </div>
-          <div className="flex items-center space-x-4 cursor-pointer hover:bg-gray-700 p-3 rounded-lg transition duration-300">
-            <div className="w-12 h-12 bg-green-600 rounded-full"></div>
-            <span className="text-lg font-medium">Grupo de Compras</span>
-          </div>
-          <div className="flex items-center space-x-4 cursor-pointer hover:bg-gray-700 p-3 rounded-lg transition duration-300">
-            <div className="w-12 h-12 bg-purple-600 rounded-full"></div>
-            <span className="text-lg font-medium">Grupo de RH</span>
-          </div>
+          <Contact name="Grupo do Telemarketing" bgColor="bg-blue-600" />
+          <Contact name="Grupo de Compras" bgColor="bg-green-600" />
+          <Contact name="Grupo de RH" bgColor="bg-purple-600" />
+          <Contact name="Grupo de RH" bgColor="bg-purple-600" />
+          <Contact name="Grupo de RH" bgColor="bg-purple-600" />
+          <Contact name="Grupo de RH" bgColor="bg-purple-600" />
+          <Contact name="Grupo de RH" bgColor="bg-purple-600" />
+          <Contact name="Grupo de RH" bgColor="bg-purple-600" />
+          <Contact name="Grupo de RH" bgColor="bg-purple-600" />
+          <Contact name="Grupo de RH" bgColor="bg-purple-600" />
         </div>
       </div>
 
       {/* Container de Chat à direita */}
-      <div className="flex-1 bg-gradient-to-br from-blue-600 via-blue-400 to-blue-300 p-6">
+      <div className="flex-1 bg-gradient-to-br from-blue-600 via-blue-400 to-blue-300 p-6 overflow-hidden">
         <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8 text-gray-800">Chat em Tempo Real</h1>
 
@@ -85,10 +90,19 @@ const ChatPage = () => {
               <p className="text-gray-500">Nenhuma mensagem ainda.</p>
             ) : (
               messages.map((msg) => (
-                <div key={msg.id} className="mb-4">
-                  <strong className="text-blue-700 font-medium">{msg.username}:</strong>
-                  <p className="text-gray-800">{msg.message}</p>
-                  <div className="text-sm text-gray-500">{new Date(msg.created_at).toLocaleString()}</div>
+                <div
+                  key={msg.id}
+                  className={`mb-4 flex ${msg.username === user.nome ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-xs p-3 rounded-lg text-white ${msg.username === user.nome ? "bg-blue-600" : "bg-gray-600"}`}
+                  >
+                    <strong>{msg.username}:</strong>
+                    <p>{msg.message}</p>
+                    <div className="text-sm text-gray-300">
+                      {new Date(msg.created_at).toLocaleString()}
+                    </div>
+                  </div>
                 </div>
               ))
             )}
